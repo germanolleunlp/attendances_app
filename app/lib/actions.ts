@@ -5,6 +5,7 @@ import { sql } from "@vercel/postgres";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
+import { CREDENTIALS_SIGN_IN } from "@/app/lib/constants";
 
 const InvoiceSchema = z.object({
   id: z.string(),
@@ -119,8 +120,8 @@ export async function authenticate(
   try {
     await signIn("credentials", Object.fromEntries(formData));
   } catch (error) {
-    if ((error as Error).message.includes("CredentialsSignin")) {
-      return "CredentialSignin";
+    if ((error as Error).message.includes(CREDENTIALS_SIGN_IN)) {
+      return CREDENTIALS_SIGN_IN;
     }
     throw error;
   }

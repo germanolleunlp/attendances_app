@@ -1,78 +1,58 @@
 "use client";
 
-import { lusitana } from "@/app/ui/fonts";
-import {
-  AtSymbolIcon,
-  ExclamationCircleIcon,
-  KeyIcon,
-} from "@heroicons/react/24/outline";
-import { ArrowRightIcon } from "@heroicons/react/20/solid";
+import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { Button } from "./button";
 import { useFormState, useFormStatus } from "react-dom";
 import { authenticate } from "@/app/lib/actions";
+import { CREDENTIALS_SIGN_IN } from "@/app/lib/constants";
 
 export default function LoginForm() {
   const [code, action] = useFormState(authenticate, undefined);
 
   return (
-    <form action={action} className="space-y-3">
-      <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-        <h1 className={`${lusitana.className} mb-3 text-2xl`}>
-          Please log in to continue.
-        </h1>
-        <div className="w-full">
-          <div>
-            <label
-              className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-              htmlFor="email"
-            >
-              Email
-            </label>
-            <div className="relative">
-              <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                id="email"
-                type="email"
-                name="email"
-                placeholder="Enter your email address"
-                required
-              />
-              <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <label
-              className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-              htmlFor="password"
-            >
-              Password
-            </label>
-            <div className="relative">
-              <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                id="password"
-                type="password"
-                name="password"
-                placeholder="Enter password"
-                required
-                minLength={6}
-              />
-              <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
-            </div>
-          </div>
-        </div>
-        <LoginButton />
-        <div className="flex h-8 items-end space-x-1">
-          {code === "CredentialSignin" && (
-            <>
-              <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-              <p aria-live="polite" className="text-sm text-red-500">
-                Invalid credentials
-              </p>
-            </>
-          )}
-        </div>
+    <form
+      action={action}
+      className="lg:w-2/6 md:w-1/2 bg-gray-800 bg-opacity-50 rounded-lg p-8 flex flex-col w-full mt-10 md:mt-0"
+    >
+      <h2 className="text-white text-lg font-medium title-font mb-5">
+        Please log in to continue.
+      </h2>
+      <div className="relative mb-4">
+        <label htmlFor="email" className="leading-7 text-sm text-gray-400">
+          Email
+        </label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          placeholder="Enter your email address"
+          className="w-full bg-gray-600 bg-opacity-20 focus:bg-transparent focus:ring-2 focus:ring-blue-900 rounded border border-gray-600 focus:border-blue-500 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+          required
+        />
       </div>
+      <div className="relative mb-4">
+        <label htmlFor="password" className="leading-7 text-sm text-gray-400">
+          Password
+        </label>
+        <input
+          id="password"
+          type="password"
+          name="password"
+          placeholder="Enter password"
+          className="w-full bg-gray-600 bg-opacity-20 focus:bg-transparent focus:ring-2 focus:ring-blue-900 rounded border border-gray-600 focus:border-blue-500 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+          required
+          minLength={6}
+        />
+      </div>
+      <LoginButton />
+      {code === CREDENTIALS_SIGN_IN && (
+        <div className="flex h-8 items-end space-x-1">
+          <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+          <p aria-live="polite" className="text-sm text-red-500">
+            Invalid credentials
+          </p>
+        </div>
+      )}
     </form>
   );
 }
@@ -80,9 +60,5 @@ export default function LoginForm() {
 function LoginButton() {
   const { pending } = useFormStatus();
 
-  return (
-    <Button className="mt-4 w-full" aria-disabled={pending}>
-      Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
-    </Button>
-  );
+  return <Button aria-disabled={pending}>Log in</Button>;
 }
