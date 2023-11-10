@@ -5,9 +5,8 @@ import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { CREDENTIALS_SIGN_IN, ROLES } from "@/app/lib/constants";
 import { LOGIN_PATH } from "@/app/lib/routes";
-import { getUser } from "@/app/lib/data";
+import { addUser, getUser } from "@/app/lib/data";
 import bcrypt from "bcrypt";
-import prisma from "@/app/lib/prisma";
 
 const UserSchema = z.object({
   id: z.string(),
@@ -62,13 +61,11 @@ export async function createUser(prevState: UserState, formData: FormData) {
     const user = await getUser(email);
     if (user) return { message: "Database Error: User already exists." };
     const encryptedPassword = await bcrypt.hash(password, 10);
-    await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: encryptedPassword,
-        role,
-      },
+    await addUser({
+      name,
+      email,
+      password: encryptedPassword,
+      role,
     });
   } catch (error) {
     return {

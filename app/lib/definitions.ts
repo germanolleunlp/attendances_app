@@ -4,14 +4,14 @@
 // However, these types are generated automatically if you're using an ORM such as Prisma.
 
 export type Attendance = {
-  id: string;
+  id?: string;
   date: string;
   userId: string;
   assisted: boolean;
 };
 
 export type User = {
-  id: string;
+  id?: string;
   name: string;
   email: string;
   password: string;

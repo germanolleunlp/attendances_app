@@ -1,5 +1,6 @@
 import { unstable_noStore as noStore } from "next/cache";
 import prisma from "@/app/lib/prisma";
+import { User } from "@/app/lib/definitions";
 
 export async function getUser(email: string) {
   noStore();
@@ -11,5 +12,16 @@ export async function getUser(email: string) {
   } catch (error) {
     console.error("Failed to fetch user:", error);
     throw new Error("Failed to fetch user.");
+  }
+}
+
+export async function addUser(user: User) {
+  try {
+    return await prisma.user.create({
+      data: user,
+    });
+  } catch (error) {
+    console.error("Failed to create user:", error);
+    throw new Error("Failed to create user.");
   }
 }
