@@ -2,24 +2,45 @@ const { db } = require("@vercel/postgres");
 const { users } = require("../app/lib/placeholder-data.js");
 const bcrypt = require("bcrypt");
 
-async function seedUsers(client) {
+async function createTables(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-    // Create the "users" table if it doesn't exist
-    const createTable = await client.sql`
+    await client.sql`
       CREATE TABLE IF NOT EXISTS users (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
         role VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
     `;
 
-    console.log(`Created "users" table`);
+    await client.sql`
+      CREATE TABLE IF NOT EXISTS attendees (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        user_id UUID NOT NULL REFERENCES users(id),
+        assisted BOOLEAN NOT NULL DEFAULT FALSE,
+        date DATE NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+    `;
 
-    // Insert data into the "users" table
-    const insertedUsers = await Promise.all(
+    await client.sql`CREATE UNIQUE INDEX IF NOT EXISTS attendees_unique_index ON attendees (user_id, date)`;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+async function main() {
+  const client = await db.connect();
+
+  try {
+    await createTables(client);
+    await Promise.all(
       users.map(async (user) => {
         const hashedPassword = await bcrypt.hash(user.password, 10);
         return client.sql`
@@ -29,23 +50,10 @@ async function seedUsers(client) {
       `;
       }),
     );
-
-    console.log(`Seeded ${insertedUsers.length} users`);
-
-    return {
-      createTable,
-      users: insertedUsers,
-    };
   } catch (error) {
-    console.error("Error seeding users:", error);
+    console.error(error);
     throw error;
   }
-}
-
-async function main() {
-  const client = await db.connect();
-
-  await seedUsers(client);
 
   await client.end();
 }
