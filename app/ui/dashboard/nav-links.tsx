@@ -1,25 +1,31 @@
 "use client";
 
 import {
-  DocumentDuplicateIcon,
+  CalendarDaysIcon,
   HomeIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import { DASHBOARD_PATH } from "@/app/lib/routes";
+import {
+  ATTENDANCES_PATH,
+  DASHBOARD_PATH,
+  STUDENTS_PATH,
+} from "@/app/lib/routes";
 
-// Map of links to display in the side navigation.
-// Depending on the size of the application, this would be stored in a database.
 const links = [
   { name: "Home", href: DASHBOARD_PATH, icon: HomeIcon },
   {
-    name: "Invoices",
-    href: "/dashboard/invoices",
-    icon: DocumentDuplicateIcon,
+    name: "Users",
+    href: STUDENTS_PATH,
+    icon: UserGroupIcon,
   },
-  { name: "Customers", href: "/dashboard/customers", icon: UserGroupIcon },
+  {
+    name: "Attendances",
+    href: ATTENDANCES_PATH,
+    icon: CalendarDaysIcon,
+  },
 ];
 
 export default function NavLinks() {
@@ -34,9 +40,9 @@ export default function NavLinks() {
             key={link.name}
             href={link.href}
             className={clsx(
-              "flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-indigo-600 md:flex-none md:justify-start md:p-2 md:px-3",
+              "flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-indigo-100 hover:text-indigo-600 md:flex-none md:justify-start md:p-2 md:px-3",
               {
-                "bg-sky-100 text-indigo-600": pathname === link.href,
+                "bg-indigo-100 text-indigo-600": pathname === link.href,
               },
             )}
           >

@@ -59,8 +59,8 @@ model User {
   password      String
   emailVerified DateTime?
   image         String?
-  name          String?
-  role          String?
+  name          String
+  role          String
   attendances   Attendance[]
   accounts      Account[]
   sessions      Session[]

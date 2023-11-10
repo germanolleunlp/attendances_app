@@ -3,7 +3,7 @@ import { LOGIN_PATH } from "@/app/lib/routes";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import RegisterForm from "@/app/ui/register-form";
 
-export default function Page() {
+export default function RootPage() {
   return (
     <section className="text-gray-400 bg-gray-900 body-font">
       <div className="container px-5 py-24 mx-auto flex flex-wrap items-center">

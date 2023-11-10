@@ -57,5 +57,9 @@ export default function LoginForm() {
 function LoginButton() {
   const { pending } = useFormStatus();
 
-  return <Button aria-disabled={pending}>Log in</Button>;
+  return (
+    <Button aria-disabled={pending} disabled={pending}>
+      Log in
+    </Button>
+  );
 }
