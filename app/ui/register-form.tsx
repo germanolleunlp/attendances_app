@@ -27,8 +27,6 @@ export default function RegisterForm() {
           type="text"
           name="name"
           className="w-full bg-gray-600 bg-opacity-20 focus:bg-transparent focus:ring-2 focus:ring-indigo-900 rounded border border-gray-600 focus:border-indigo-500 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-          required
-          minLength={2}
         />
         <FormError field="name" errors={state?.errors?.name} />
       </div>
@@ -41,7 +39,7 @@ export default function RegisterForm() {
           type="email"
           name="email"
           className="w-full bg-gray-600 bg-opacity-20 focus:bg-transparent focus:ring-2 focus:ring-indigo-900 rounded border border-gray-600 focus:border-indigo-500 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-          required
+          autoComplete={"email"}
         />
         <FormError field="email" errors={state?.errors?.email} />
       </div>
@@ -55,8 +53,7 @@ export default function RegisterForm() {
           name="password"
           placeholder="Enter password"
           className="w-full bg-gray-600 bg-opacity-20 focus:bg-transparent focus:ring-2 focus:ring-indigo-900 rounded border border-gray-600 focus:border-indigo-500 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-          required
-          minLength={6}
+          autoComplete={"current-password"}
         />
         <FormError field="email" errors={state?.errors?.password} />
       </div>

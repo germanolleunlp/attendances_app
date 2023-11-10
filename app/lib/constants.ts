@@ -1,4 +1,4 @@
-export const CREDENTIALS_SIGN_IN = "CredentialSignin";
+export const CREDENTIALS_SIGN_IN = "CredentialsSignin";
 export const ROLES = {
   STUDENT: "student",
   TEACHER: "teacher",
