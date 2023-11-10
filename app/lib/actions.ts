@@ -2,116 +2,31 @@
 
 import { z } from "zod";
 import { sql } from "@vercel/postgres";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
-import { CREDENTIALS_SIGN_IN } from "@/app/lib/constants";
+import { CREDENTIALS_SIGN_IN, ROLES } from "@/app/lib/constants";
+import { LOGIN_PATH } from "@/app/lib/routes";
+import { getUser } from "@/app/lib/data";
+import bcrypt from "bcrypt";
 
-const InvoiceSchema = z.object({
+const UserSchema = z.object({
   id: z.string(),
-  customerId: z.string({
-    invalid_type_error: "Please select a customer.",
-  }),
-  amount: z.coerce
-    .number()
-    .gt(0, { message: "Please enter an amount greater than $0." }),
-  status: z.enum(["pending", "paid"], {
-    invalid_type_error: "Please select an invoice status.",
-  }),
-  date: z.string(),
+  name: z.string().min(2),
+  email: z.string().email(),
+  password: z.string().min(6),
+  role: z.enum([ROLES.STUDENT, ROLES.TEACHER, ROLES.TUTOR]),
 });
 
 // This is temporary until @types/react-dom is updated
-export type State = {
+export type UserState = {
   errors?: {
-    customerId?: string[];
-    amount?: string[];
-    status?: string[];
+    name?: string[];
+    email?: string[];
+    password?: string[];
+    role?: string[];
   };
   message?: string | null;
 };
-
-const CreateInvoice = InvoiceSchema.omit({ id: true, date: true });
-export async function createInvoice(prevState: State, formData: FormData) {
-  const rawFormData = Object.fromEntries(formData.entries());
-  const validatedFields = CreateInvoice.safeParse(rawFormData);
-
-  // If form validation fails, return errors early. Otherwise, continue.
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: "Missing Fields. Failed to Create Invoice.",
-    };
-  }
-
-  // Prepare data for insertion into the database
-  const { customerId, amount, status } = validatedFields.data;
-
-  // It's usually good practice to store monetary values in cents in your database
-  // to eliminate JavaScript floating-point errors and ensure greater accuracy.
-  const amountInCents = amount * 100;
-  const date = new Date().toISOString().split("T")[0];
-
-  try {
-    await sql`
-      INSERT INTO invoices (customer_id, amount, status, date)
-      VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-    `;
-  } catch (error) {
-    return {
-      message: "Database Error: Failed to Update Invoice.",
-    };
-  }
-
-  revalidatePath("/dashboard/invoices");
-  redirect("/dashboard/invoices");
-}
-
-const UpdateInvoice = InvoiceSchema.omit({ id: true, date: true });
-export async function updateInvoice(
-  id: string,
-  prevState: State,
-  formData: FormData,
-) {
-  const rawFormData = Object.fromEntries(formData.entries());
-  const validatedFields = UpdateInvoice.safeParse(rawFormData);
-
-  // If form validation fails, return errors early. Otherwise, continue.
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: "Missing Fields. Failed to Create Invoice.",
-    };
-  }
-
-  // Prepare data for insertion into the database
-  const { customerId, amount, status } = validatedFields.data;
-
-  const amountInCents = amount * 100;
-
-  try {
-    await sql`
-        UPDATE invoices
-        SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-        WHERE id = ${id}
-      `;
-  } catch (error) {
-    return { message: "Database Error: Failed to Update Invoice." };
-  }
-
-  revalidatePath("/dashboard/invoices");
-  redirect("/dashboard/invoices");
-}
-
-export async function deleteInvoice(id: string) {
-  try {
-    await sql`DELETE FROM invoices WHERE id = ${id}`;
-    revalidatePath("/dashboard/invoices");
-    return { message: "Deleted Invoice." };
-  } catch (error) {
-    return { message: "Database Error: Failed to Delete Invoice." };
-  }
-}
 
 export async function authenticate(
   prevState: string | undefined,
@@ -125,4 +40,37 @@ export async function authenticate(
     }
     throw error;
   }
+}
+
+const CreateUser = UserSchema.omit({ id: true });
+export async function createUser(prevState: UserState, formData: FormData) {
+  const userForm = Object.fromEntries(formData.entries());
+  const userFields = CreateUser.safeParse(userForm);
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!userFields.success) {
+    return {
+      errors: userFields.error.flatten().fieldErrors,
+      message: "Missing Fields. Failed to Create User.",
+    };
+  }
+
+  // Prepare data for insertion into the database
+  const { name, email, password, role } = userFields.data;
+
+  try {
+    const user = await getUser(email);
+    if (user) return { message: "Database Error: User already exists." };
+    const encryptedPassword = await bcrypt.hash(password, 10);
+    await sql`
+      INSERT INTO users (name, email, role, password)
+      VALUES (${name}, ${email}, ${role}, ${encryptedPassword})
+    `;
+  } catch (error) {
+    return {
+      message: "Database Error: Failed to Update Invoice.",
+    };
+  }
+
+  redirect(LOGIN_PATH);
 }
