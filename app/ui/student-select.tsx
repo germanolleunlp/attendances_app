@@ -1,22 +1,21 @@
-import { ROLES } from "@/app/lib/constants";
+import { User } from "@/app/lib/definitions";
 
-export default function RoleSelect() {
+export default function StudentSelect({
+  students,
+}: {
+  students: Omit<User, "password">[];
+}) {
   return (
     <div className="flex items-center">
-      <span className="mr-3">Role</span>
       <div className="relative">
         <select
-          id="role"
-          name="role"
+          id="userId"
+          name="userId"
           className="rounded border border-gray-700 focus:ring-2 focus:ring-indigo-900 bg-transparent appearance-none py-2 focus:outline-none focus:border-indigo-500 text-white pl-3 pr-10"
         >
-          {Object.values(ROLES).map((role) => (
-            <option
-              key={role}
-              className="bg-gray-800 appearance-none"
-              value={role}
-            >
-              {role}
+          {students.map(({ id, name, email }) => (
+            <option key={id} className="bg-gray-800 appearance-none" value={id}>
+              {name} ({email})
             </option>
           ))}
         </select>

@@ -4,9 +4,10 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { CREDENTIALS_SIGN_IN, ROLES } from "@/app/lib/constants";
-import { LOGIN_PATH } from "@/app/lib/routes";
-import { addUser, getUser } from "@/app/lib/data";
+import { ATTENDANCES_PATH, LOGIN_PATH } from "@/app/lib/routes";
+import { addAttendance, addUser, getUser } from "@/app/lib/data";
 import bcrypt from "bcrypt";
+import { revalidatePath } from "next/cache";
 
 const UserSchema = z.object({
   id: z.string(),
@@ -14,6 +15,13 @@ const UserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(4),
   role: z.enum([ROLES.STUDENT, ROLES.TEACHER, ROLES.TUTOR]),
+});
+
+const AttendanceSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  date: z.string(),
+  assisted: z.boolean().default(false),
 });
 
 // This is temporary until @types/react-dom is updated
@@ -74,4 +82,49 @@ export async function createUser(prevState: UserState, formData: FormData) {
   }
 
   redirect(LOGIN_PATH);
+}
+
+// This is temporary until @types/react-dom is updated
+export type AttendanceState = {
+  errors?: {
+    userId?: string[];
+    date?: string[];
+    assisted?: string[];
+  };
+  message?: string | null;
+};
+
+const CreateAttendance = AttendanceSchema.omit({ id: true });
+export async function createAttendance(
+  prevState: AttendanceState,
+  formData: FormData,
+) {
+  const attendanceForm = Object.fromEntries(formData.entries());
+  const attendanceFields = CreateAttendance.safeParse(attendanceForm);
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!attendanceFields.success) {
+    return {
+      errors: attendanceFields.error.flatten().fieldErrors,
+      message: "Missing Fields. Failed to Create Attendance.",
+    };
+  }
+
+  // Prepare data for insertion into the database
+  const { userId, date, assisted = false } = attendanceFields.data;
+
+  try {
+    await addAttendance({
+      userId,
+      date,
+      assisted,
+    });
+  } catch (error) {
+    return {
+      message: "Database Error: Failed to Create Attendance.",
+    };
+  }
+
+  revalidatePath(ATTENDANCES_PATH);
+  redirect(ATTENDANCES_PATH);
 }

@@ -2,6 +2,8 @@ import Card from "@/app/ui/card";
 import { CalendarDaysIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 import { getCounters } from "@/app/lib/data";
 import { ROLES } from "@/app/lib/constants";
+import { Suspense } from "react";
+import CardSkeleton from "@/app/ui/card-skeleton";
 
 const ROLES_MAP = {
   [ROLES.STUDENT]: "Students",
@@ -9,9 +11,29 @@ const ROLES_MAP = {
   [ROLES.TUTOR]: "Tutors",
 };
 
-export default async function DashboardPage() {
+const Cards = async () => {
   const { users, attendances } = await getCounters();
 
+  return (
+    <>
+      {users.map(({ _count: { id: total }, role }) => (
+        <Card
+          key={role}
+          icon={UserGroupIcon}
+          title={`${total}`}
+          description={ROLES_MAP[role] || "Others"}
+        />
+      ))}
+      <Card
+        icon={CalendarDaysIcon}
+        title={`${attendances}`}
+        description="Attendances"
+      />
+    </>
+  );
+};
+
+export default function DashboardPage() {
   return (
     <section className="text-gray-400 bg-gray-900 body-font">
       <div className="container px-5 py-24 mx-auto">
@@ -22,19 +44,9 @@ export default async function DashboardPage() {
           <p className="lg:w-2/3 mx-auto leading-relaxed text-base"></p>
         </div>
         <div className="flex flex-wrap gap-3 justify-center text-center">
-          {users.map(({ _count: { id: total }, role }) => (
-            <Card
-              key={role}
-              icon={UserGroupIcon}
-              title={`${total}`}
-              description={ROLES_MAP[role] || "Others"}
-            />
-          ))}
-          <Card
-            icon={CalendarDaysIcon}
-            title={`${attendances}`}
-            description="Attendances"
-          />
+          <Suspense fallback={<CardSkeleton />}>
+            <Cards />
+          </Suspense>
         </div>
       </div>
     </section>
