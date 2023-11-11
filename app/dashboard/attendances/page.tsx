@@ -1,6 +1,6 @@
 import { getAllStudents, getAttendances } from "@/app/lib/data";
-import AttendanceForm from "@/app/ui/attendances/attendance-form";
-import { parseDate } from "@/app/lib/utils";
+import AttendanceForm from "@/app/ui/attendance-form";
+import AttendancesTable from "@/app/ui/attendances-table";
 
 export default async function AttendancesPage() {
   const attendances = await getAttendances();
@@ -17,36 +17,7 @@ export default async function AttendancesPage() {
         <div className="lg:w-2/3 w-full mx-auto overflow-auto">
           <AttendanceForm students={students} />
           <div className="h-8" />
-          <table className="table-auto w-full text-left whitespace-no-wrap">
-            <thead>
-              <tr>
-                <th className="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800">
-                  User
-                </th>
-                <th className="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800">
-                  Date
-                </th>
-                <th className="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800">
-                  Assisted
-                </th>
-                <th className="w-10 title-font tracking-wider font-medium text-white text-sm bg-gray-800 rounded-tr rounded-br"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {attendances.map((attendance) => (
-                <tr key={attendance.id}>
-                  <td className="px-4 py-3">{attendance.user?.name}</td>
-                  <td className="px-4 py-3">{parseDate(attendance.date)}</td>
-                  <td className="px-4 py-3">
-                    {attendance.assisted ? "Yes" : "No"}
-                  </td>
-                  <td className="w-10 text-center">
-                    <input name="plan" type="radio" />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <AttendancesTable attendances={attendances} />
         </div>
       </div>
     </section>

@@ -21,7 +21,7 @@ const AttendanceSchema = z.object({
   id: z.string(),
   userId: z.string(),
   date: z.string(),
-  assisted: z.boolean().default(false),
+  assisted: z.string().default("off"),
 });
 
 // This is temporary until @types/react-dom is updated
@@ -111,13 +111,13 @@ export async function createAttendance(
   }
 
   // Prepare data for insertion into the database
-  const { userId, date, assisted = false } = attendanceFields.data;
+  const { userId, date, assisted } = attendanceFields.data;
 
   try {
     await addAttendance({
       userId,
       date,
-      assisted,
+      assisted: assisted === "on",
     });
   } catch (error) {
     return {

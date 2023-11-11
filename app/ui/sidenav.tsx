@@ -1,5 +1,5 @@
 import Link from "next/link";
-import NavLinks from "@/app/ui/dashboard/nav-links";
+import NavLinks from "@/app/ui/nav-links";
 import { SignOutButton } from "@/app/ui/sign-out-button";
 import { signOut } from "@/auth";
 import { AcademicCapIcon } from "@heroicons/react/24/outline";

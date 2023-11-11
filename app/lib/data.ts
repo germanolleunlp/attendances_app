@@ -83,10 +83,12 @@ export async function getAttendances() {
         id: true,
         date: true,
         assisted: true,
+        userId: true,
         user: {
           select: {
             id: true,
             name: true,
+            email: true,
           },
         },
       },
@@ -109,5 +111,20 @@ export async function addAttendance({ date, ...attendance }: Attendance) {
   } catch (error) {
     console.error("Failed to create attendance:", error);
     throw new Error("Failed to create attendance.");
+  }
+}
+
+export async function deleteAttendances(ids: string[]) {
+  try {
+    return await prisma.attendance.deleteMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Failed to delete attendances:", error);
+    throw new Error("Failed to delete attendances.");
   }
 }
