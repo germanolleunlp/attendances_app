@@ -1,5 +1,5 @@
 import { NextAuthConfig } from "next-auth";
-import { DASHBOARD_PATH, LOGIN_PATH } from "@/app/lib/routes";
+import { DASHBOARD_PATH, LOGIN_PATH } from "./app/lib/routes";
 
 export const authConfig = {
   providers: [],
