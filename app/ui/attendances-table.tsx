@@ -12,14 +12,17 @@ type Attendance = Omit<BaseAttendance, "date"> & {
 
 export default function AttendancesTable({
   attendances,
+  readOnly = true,
 }: {
   attendances: Attendance[];
+  readOnly?: boolean;
 }) {
   const [loading, setLoading] = useState<boolean>(false);
   const [rows, setRows] = useState<Record<string, boolean>>({});
   const [current, setCurrent] = useState<Record<string, boolean>>({});
 
   const handleOnChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (readOnly) return;
     const {
       checked,
       dataset: { attendanceId },
@@ -35,6 +38,7 @@ export default function AttendancesTable({
   };
 
   const handleClick = () => {
+    if (readOnly) return;
     setLoading(true);
     fetch("/api/attendances", {
       method: "DELETE",
@@ -76,27 +80,31 @@ export default function AttendancesTable({
                 <td className="px-4 py-3">
                   {attendance.assisted ? "Yes" : "No"}
                 </td>
-                <td className="w-10 text-center">
-                  <input
-                    id={attendance.id}
-                    data-attendance-id={attendance.id}
-                    type="checkbox"
-                    onChange={handleOnChange}
-                    className="w-4 h-4 text-indigo-600 rounded ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600"
-                  />
-                </td>
+                {!readOnly && (
+                  <td className="w-10 text-center">
+                    <input
+                      id={attendance.id}
+                      data-attendance-id={attendance.id}
+                      type="checkbox"
+                      onChange={handleOnChange}
+                      className="w-4 h-4 text-indigo-600 rounded ring-offset-gray-800 focus:ring-2 bg-gray-700 border-gray-600"
+                    />
+                  </td>
+                )}
               </tr>
             ))}
         </tbody>
       </table>
-      <Button
-        aria-disabled={loading}
-        disabled={loading}
-        className="text-sm self-end"
-        onClick={handleClick}
-      >
-        Delete
-      </Button>
+      {!readOnly && (
+        <Button
+          aria-disabled={loading}
+          disabled={loading}
+          className="text-sm self-end"
+          onClick={handleClick}
+        >
+          Delete
+        </Button>
+      )}
     </div>
   );
 }

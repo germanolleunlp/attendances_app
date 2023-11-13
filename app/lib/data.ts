@@ -62,13 +62,26 @@ export async function getAllStudents() {
   }
 }
 
-export async function getCounters() {
+export async function getCountersBy({
+  role,
+  email = "",
+}: {
+  role?: string | null;
+  email?: string;
+}) {
   try {
     const users = await prisma.user.groupBy({
       by: ["role"],
+      where: {
+        ...(role === ROLES.TEACHER ? {} : { email }),
+      },
       _count: { id: true },
     });
-    const attendances = await prisma.attendance.count();
+    const attendances = await prisma.attendance.findMany({
+      where: {
+        ...(role === ROLES.TEACHER ? {} : { user: { email } }),
+      },
+    });
     return { users, attendances };
   } catch (error) {
     console.error("Failed to fetch counters:", error);
@@ -76,9 +89,18 @@ export async function getCounters() {
   }
 }
 
-export async function getAttendances() {
+export async function getAttendancesBy({
+  role,
+  email = "",
+}: {
+  role?: string | null;
+  email?: string;
+}) {
   try {
     return await prisma.attendance.findMany({
+      where: {
+        ...(role === ROLES.TEACHER ? {} : { user: { email } }),
+      },
       select: {
         id: true,
         date: true,
