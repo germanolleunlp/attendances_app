@@ -76,10 +76,10 @@ model User {
   attendances   Attendance[]
   accounts      Account[]
   sessions      Session[]
-  createdAt     DateTime     @default(now()) @map(name: "created_at")
-  updatedAt     DateTime     @updatedAt @map(name: "updated_at")
   tutors        Tutoring[]   @relation("tutor")
   students      Tutoring[]   @relation("student")
+  createdAt     DateTime     @default(now()) @map(name: "created_at")
+  updatedAt     DateTime     @updatedAt @map(name: "updated_at")
 }
 
 model VerificationToken {
