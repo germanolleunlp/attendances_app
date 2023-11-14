@@ -53,6 +53,18 @@ model Attendance {
   @@unique([userId, date])
 }
 
+model Tutoring {
+  id        String   @id @default(cuid())
+  tutorId   String
+  studentId String
+  tutor     User     @relation("tutor", fields: [tutorId], references: [id])
+  student   User     @relation("student", fields: [studentId], references: [id])
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @updatedAt @map(name: "updated_at")
+
+  @@unique([tutorId, studentId])
+}
+
 model User {
   id            String       @id @default(cuid())
   email         String       @unique
@@ -66,6 +78,8 @@ model User {
   sessions      Session[]
   createdAt     DateTime     @default(now()) @map(name: "created_at")
   updatedAt     DateTime     @updatedAt @map(name: "updated_at")
+  tutors        Tutoring[]   @relation("tutor")
+  students      Tutoring[]   @relation("student")
 }
 
 model VerificationToken {
